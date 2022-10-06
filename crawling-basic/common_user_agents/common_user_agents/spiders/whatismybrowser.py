@@ -18,20 +18,19 @@ class WhatismybrowserSpider(scrapy.Spider):
             'https://developers.whatismybrowser.com/useragents/explore/software_name/edge/',
             'https://developers.whatismybrowser.com/useragents/explore/software_name/internet-explorer/',
         ]
-
-        for link in common_browsers_links:
-            yield scrapy.http.Request(link)
-
-    def parse(self, response, **kwargs):
         max_page = getattr(self, 'max_page', 10)
 
+        for link in common_browsers_links:
+            for page in range(1, max_page + 1):
+                page_link = f'{link}/{page}'
+                yield scrapy.http.Request(page_link)
+
+    def parse(self, response, **kwargs):
         ua_elems = response.xpath(
             './/table[contains(@class, "table-useragents")]/tbody'
             '/tr[td[contains(text(), "Computer")] and td[contains(text(), "Very common")]]'
             '/td/a'
         )
-        if len(ua_elems) == 0:
-            return
         for ua_elem in ua_elems:
             try:
                 ua = ua_elem.xpath('./text()').extract_first().strip()
@@ -39,13 +38,3 @@ class WhatismybrowserSpider(scrapy.Spider):
                 yield {'user_agent_string': ua.strip('"')}
             except Exception as e:
                 self.logger.exception(e)
-
-        next_page_elem = response.xpath(
-            './/div[@id="pagination"]/span[contains(@class, "current")]/following-sibling::a')[0]
-        if next_page_elem:
-            page = int(next_page_elem.xpath('./text()').extract_first().strip())
-            if page < max_page:
-                next_page_url = next_page_elem.xpath('./@href').extract_first().strip()
-                if not next_page_url.startswith('http'):
-                    next_page_url = 'https://developers.whatismybrowser.com' + next_page_url
-                yield scrapy.http.Request(next_page_url)
