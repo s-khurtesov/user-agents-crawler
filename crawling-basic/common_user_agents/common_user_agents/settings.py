@@ -92,8 +92,8 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 
 # RetryMiddleware settings
 RETRY_ENABLED = True
-RETRY_TIMES = 10
-RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 400, 404]
+RETRY_TIMES = 3
+RETRY_HTTP_CODES = [500, 502, 503, 504, 400, 404]
 
 FEED_EXPORTERS = {
     'csv': 'common_user_agents.exporters.CustomCsvItemExporter'

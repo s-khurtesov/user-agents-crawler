@@ -14,7 +14,7 @@ class DuplicateFilterPipeline(object):
         self.items_seen = set()
 
     def process_item(self, item, spider):
-        fp = hashlib.sha1(item['user_agent_string']).hexdigest()
+        fp = hashlib.sha1(item['user_agent_string'].encode('UTF-8')).hexdigest()
         if fp in self.items_seen:
             raise DropItem('Duplicate item found: %s' % item['user_agent_string'])
         else:

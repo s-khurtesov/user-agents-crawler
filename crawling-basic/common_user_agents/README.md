@@ -11,6 +11,11 @@ The simplest way is to install it via `pip`:
 
     pip install -r requirements.txt
 
+Or using `conda`:
+
+    conda env create -f requirements.txt -n ua-crawler
+    conda activate ua-crawler
+
 Execute:
 -------------
 

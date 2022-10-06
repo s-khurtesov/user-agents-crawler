@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pdb
 import scrapy
 
 
@@ -16,17 +15,23 @@ class WhatismybrowserSpider(scrapy.Spider):
             'https://developers.whatismybrowser.com/useragents/explore/software_name/firefox/',
             'https://developers.whatismybrowser.com/useragents/explore/software_name/opera/',
             'https://developers.whatismybrowser.com/useragents/explore/software_name/safari/',
-            'https://developers.whatismybrowser.com/useragents/explore/software_name/internet-explorer/'
+            'https://developers.whatismybrowser.com/useragents/explore/software_name/edge/',
+            'https://developers.whatismybrowser.com/useragents/explore/software_name/internet-explorer/',
         ]
 
         for link in common_browsers_links:
             yield scrapy.http.Request(link)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         max_page = getattr(self, 'max_page', 10)
 
         ua_elems = response.xpath(
-            './/table[contains(@class, "table-useragents")]/tbody/tr/td[contains(@class, "useragent")]/a')
+            './/table[contains(@class, "table-useragents")]/tbody'
+            '/tr[td[contains(text(), "Computer")] and td[contains(text(), "Very common")]]'
+            '/td/a'
+        )
+        if len(ua_elems) == 0:
+            return
         for ua_elem in ua_elems:
             try:
                 ua = ua_elem.xpath('./text()').extract_first().strip()
